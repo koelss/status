@@ -2,220 +2,196 @@
 <html>
 <head>
   <title>Koels - Server Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg1:#0b1220;
+      --bg2:#020617;
+      --surface:#121a2b;
+      --text:#e6edf3;
+      --muted:#9fb0c3;
+      --accent:#22c55e;
+      --border:rgba(255,255,255,0.08);
+    }
+
     body {
       margin:0;
       font-family: Inter, system-ui, sans-serif;
-      background: linear-gradient(135deg,#0f172a,#1e293b,#334155,#0f172a);
-      background-size: 400% 400%;
-      animation: gradientBG 60s ease infinite;
-      color:white;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2),#0b1220);
+      background-size: 300% 300%;
+      animation: bgShift 12s ease infinite;
+      color:var(--text);
     }
 
-    @keyframes gradientBG {
+    @keyframes bgShift {
       0% { background-position:0% 50%; }
       50% { background-position:100% 50%; }
       100% { background-position:0% 50%; }
     }
 
-    .nav {
-      padding:20px 40px;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size:18px;
-      font-weight:600;
-      position: sticky;
-      top:0;
+    .header {
+      position:fixed;
+      top:16px;
+      left:50%;
+      transform:translateX(-50%);
+      backdrop-filter: blur(16px);
+      background: rgba(15,23,42,0.6);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:10px 22px;
+      z-index:100;
     }
 
-    .nav a {
-      color:white;
-      margin-left:20px;
-      text-decoration:none;
-    }
+    .nav { display:flex; gap:40px; }
+    .nav a { color:var(--text); text-decoration:none; opacity:0.8; }
+    .nav a:hover { opacity:1; }
 
-    .nav a:hover { text-decoration:underline; }
-    .nav a:visited { color:white; }
-    .nav .site-name { color:#22c55e; font-weight:700; }
+    .container {
+      max-width:900px;
+      margin:0 auto;
+      padding:100px 20px 40px; /* only top offset for header */
+    }
 
     section {
-      padding:80px 20px;
-      text-align:center;
-    }
-
-    .card {
-      margin:40px auto;
-      width:450px;
-      background: rgba(30,41,59,0.5);
-      backdrop-filter: blur(25px);
-      border-radius:20px;
-      padding:30px;
-      box-shadow:0 12px 50px rgba(0,0,0,0.5);
-      border:1px solid rgba(255,255,255,0.08);
-    }
-
-    .motd { color:#cbd5f5; margin-top:10px; }
-    .players { color:#94a3b8; margin-top:10px; }
-    .status { margin-top:12px; font-weight:600; }
-
-    .dot {
-      height:10px;
-      width:10px;
-      border-radius:50%;
-      display:inline-block;
-      margin-right:6px;
-    }
-
-    .dot.online { background:#22c55e; }
-    .dot.offline { background:#ef4444; }
-
-    .timer-text {
-      margin-top:12px;
-      color:#94a3b8;
-      font-size:14px;
-    }
-
-    .info-box {
-      margin-top:20px;
-      background:rgba(30,41,59,0.5);
-      display:inline-block;
-      padding:20px 30px;
-      border-radius:12px;
-    }
-
-    .info-box a,
-    .info-box a:visited {
-      color:#94a3b8;
-      text-decoration:none;
-    }
-
-    .info-box a:hover {
-      text-decoration:underline;
-    }
-
-    .footer {
-      margin-top:40px;
-      font-size:0.85rem;
-      color:#94a3b8;
-      text-align:center;
+      min-height: calc(100vh - 100px); /* true visible height minus header space */
       display:flex;
+      flex-direction:column;
       justify-content:center;
       align-items:center;
-      gap:8px;
+      margin:0;
+      scroll-margin-top:100px; /* anchor offset */
+      text-align:center;
     }
 
-    .footer a {
-      color:#94a3b8;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      gap:6px;
+    h1 { font-size:56px; }
+    h2 { font-size:28px; }
+    p { color:var(--muted); }
+
+    .box {
+      margin-top:80px;
+      padding:24px 28px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(30,41,59,0.7), rgba(15,23,42,0.6));
+      border:1px solid var(--border);
+      backdrop-filter: blur(20px);
+      max-width:520px;
+      width:100%;
     }
 
-    .footer a:hover { text-decoration:underline; }
+    .row { margin-top:12px; }
 
-    .github-logo {
-      width:18px;
-      height:18px;
+    .dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; }
+    .online { background:#22c55e; }
+    .offline { background:#ef4444; }
+
+    #about { margin-top:200px; }
+    #contact { margin-top:400px; }
+
+    .footer {
+      text-align:center;
+      margin-top:20px;
+      margin-bottom:20px;
+      color:var(--muted);
     }
   </style>
 </head>
 <body>
 
-<div class="nav">
-  <span class="site-name">koels.site</span>
-  <a href="index.html">Status</a>
-  <a href="about.html">About Me</a>
-  <a href="contact.html">Contact</a>
+<div class="header">
+  <div class="nav">
+    <a href="#status">Status</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
 </div>
 
-<section>
-  <h2>Server Status</h2>
+<div class="container">
 
-  <div class="card">
-    <h3>koels.online</h3>
-    <div id="motd" class="motd">Loading...</div>
-    <div id="players" class="players"></div>
-    <div id="statusText" class="status">Checking...</div>
+<section id="status">
+  <h1>koels.online</h1>
+  <p>Minecraft server status</p>
 
-    <div class="timer-text" id="timerText"></div>
-  </div>
+  <div class="box">
+    <div style="font-size:13px; color:var(--muted); margin-bottom:10px;">
+      Join using: <strong>koels.online</strong><br>
+      MC version 1.21.11
+    </div>
 
-  <div class="info-box">
-    Join using: <strong>koels.online</strong><br><br>
-    Status from <a href="https://mcapi.us/" target="_blank">MCAPI</a>
+    <div id="statusText" class="row"></div>
+        <div id="players" class="row"></div>
+    <div id="timer" class="row"></div>
   </div>
 </section>
 
-<div class="footer">
-  <a href="https://github.com/" target="_blank">
-    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo">
-    <span>Hosted on GitHub</span>
-  </a>
+<section id="about">
+  <h2>About</h2>
+  <div class="box">
+    <p>Hey, I'm Kyle</p>
+    <p>I build PCs whenever I have the chance, host Minecraft servers for friends, and mess with tech!</p>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact</h2>
+  <div class="box">
+    <p>Discord: @koels</p>
+    <p>Email: kyle@koels.site</p>
+  </div>
+
+  <div class="footer" style="margin-top:30px;">
+    Hosted on GitHub<br>
+    Status from MCAPI
+  </div>
+</section>
+
+
+
 </div>
 
 <script>
 const REFRESH_INTERVAL = 180;
-let lastCycle = null;
 
-// fetch
+const statusText = document.getElementById("statusText");
+const players = document.getElementById("players");
+const timer = document.getElementById("timer");
+
 async function fetchStatus(){
   try {
     const res = await fetch("https://mcapi.us/server/status?ip=koels.online");
-    if(!res.ok) throw new Error();
     return await res.json();
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// render
 function render(data){
-  const motd = document.getElementById("motd");
-  const players = document.getElementById("players");
-  const status = document.getElementById("statusText");
-
-  if(!data){
-    status.innerHTML = '<span class="dot offline"></span>Error';
-    return;
-  }
+  if(!data) return;
 
   if(data.online){
-    motd.innerText = data.motd || "No MOTD";
-    players.innerText = `${data.players.now} / ${data.players.max}`;
-    status.innerHTML = '<span class="dot online"></span>Online';
+    statusText.innerHTML = '<span class="dot online"></span>Online';
+        players.innerText = `${data.players.now} / ${data.players.max}`;
   } else {
-    motd.innerText = "Server is offline";
-    players.innerText = "";
-    status.innerHTML = '<span class="dot offline"></span>Offline';
+    statusText.innerHTML = '<span class="dot offline"></span>Offline';
+        players.innerText = "";
   }
 }
 
-// update
 async function update(){
-  const statusEl = document.getElementById("statusText");
-  statusEl.innerHTML = '<span class="dot online"></span>Refreshing...';
-
   const data = await fetchStatus();
   render(data);
 }
 
-// synced timer (no progress bar)
 function updateTimer(){
   const now = Math.floor(Date.now() / 1000);
-  const currentCycle = Math.floor(now / REFRESH_INTERVAL);
   const remaining = REFRESH_INTERVAL - (now % REFRESH_INTERVAL);
 
-  document.getElementById("timerText").innerText = `Refreshing in ${remaining}s`;
+  timer.innerText = `Refreshing in ${remaining}s`;
 
-  if(currentCycle !== lastCycle){
-    lastCycle = currentCycle;
+  if(remaining === REFRESH_INTERVAL || remaining === 0){
     update();
   }
 }
 
-// start
 update();
 setInterval(updateTimer, 1000);
 </script>
