@@ -142,12 +142,25 @@
 </div>
 
 <script>
-async function fetchJSON(url){
+let lastSuccess = {
+  online: false,
+  players: { online: 0, max: 0 },
+  motd: { html: "Loading..." }
+};
+
+// fetch with timeout (IMPORTANT FIX)
+async function fetchWithTimeout(url, timeout = 5000){
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
     if(!res.ok) throw new Error();
     return await res.json();
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function extractMotd(data){
@@ -156,32 +169,52 @@ function extractMotd(data){
   return "No MOTD";
 }
 
-async function updateStatus(){
+async function getServerStatus(){
   const proxy = "https://api.allorigins.win/raw?url=";
   const url = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
 
-  const data = await fetchJSON(proxy + url);
+  return await fetchWithTimeout(proxy + url, 5000);
+}
 
-  const motd = document.getElementById("motd");
-  const players = document.getElementById("players");
-  const status = document.getElementById("statusText");
+async function updateStatus(){
+  const motdEl = document.getElementById("motd");
+  const playersEl = document.getElementById("players");
+  const statusEl = document.getElementById("statusText");
 
+  const data = await getServerStatus();
+
+  // ❗ If fetch failed → DO NOT ERROR → use last good data
   if(!data){
-    status.innerHTML = '<span class="dot offline"></span>Error';
+    render(lastSuccess);
     return;
   }
 
-  if(data.online){
-    motd.innerHTML = extractMotd(data);
-    players.innerText = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
-    status.innerHTML = '<span class="dot online"></span>Online';
+  // save good data
+  lastSuccess = data;
+
+  render(data);
+}
+
+function render(data){
+  const motdEl = document.getElementById("motd");
+  const playersEl = document.getElementById("players");
+  const statusEl = document.getElementById("statusText");
+
+  const isOnline = data.online === true;
+
+  if(isOnline){
+    motdEl.innerHTML = extractMotd(data);
+    playersEl.innerText = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
+    statusEl.innerHTML = '<span class="dot online"></span>Online';
   } else {
-    status.innerHTML = '<span class="dot offline"></span>Offline';
+    motdEl.innerText = "Server is offline";
+    playersEl.innerText = "";
+    statusEl.innerHTML = '<span class="dot offline"></span>Offline';
   }
 }
 
 updateStatus();
-setInterval(updateStatus,15000);
+setInterval(updateStatus, 15000);
 </script>
 
 </body>
