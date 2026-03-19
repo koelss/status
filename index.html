@@ -18,7 +18,6 @@
       100% { background-position:0% 50%; }
     }
 
-    /* SAME NAVBAR FOR ALL PAGES */
     .nav {
       padding:20px 40px;
       background: rgba(0,0,0,0.4);
@@ -51,11 +50,13 @@
       backdrop-filter: blur(25px);
       border-radius:20px;
       padding:30px;
+      box-shadow:0 12px 50px rgba(0,0,0,0.5);
+      border:1px solid rgba(255,255,255,0.08);
     }
 
-    .motd { color:#cbd5f5; }
+    .motd { color:#cbd5f5; margin-top:10px; }
     .players { color:#94a3b8; margin-top:10px; }
-    .status { margin-top:10px; font-weight:600; }
+    .status { margin-top:12px; font-weight:600; }
 
     .dot {
       height:10px;
@@ -65,8 +66,6 @@
       margin-right:6px;
     }
 
-    .online { color:#22c55e; }
-    .offline { color:#ef4444; }
     .dot.online { background:#22c55e; }
     .dot.offline { background:#ef4444; }
 
@@ -84,25 +83,34 @@
       text-decoration:none;
     }
 
-    .info-box a:hover { text-decoration:underline; }
+    .info-box a:hover {
+      text-decoration:underline;
+    }
 
     .footer {
-      margin-top:30px;
-      text-align:center;
+      margin-top:40px;
+      font-size:0.85rem;
       color:#94a3b8;
+      text-align:center;
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:6px;
+      gap:8px;
     }
 
     .footer a {
       color:#94a3b8;
       text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:6px;
     }
+
+    .footer a:hover { text-decoration:underline; }
 
     .github-logo {
       width:18px;
+      height:18px;
     }
   </style>
 </head>
@@ -137,18 +145,14 @@
 <div class="footer">
   <a href="https://github.com/" target="_blank">
     <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo">
-    Hosted on GitHub
+    <span>Hosted on GitHub</span>
   </a>
 </div>
 
 <script>
-let lastSuccess = {
-  online: false,
-  players: { online: 0, max: 0 },
-  motd: { html: "Loading..." }
-};
+let lastSuccess = null;
 
-// fetch with timeout (IMPORTANT FIX)
+// fetch with timeout (prevents hanging)
 async function fetchWithTimeout(url, timeout = 5000){
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -176,31 +180,15 @@ async function getServerStatus(){
   return await fetchWithTimeout(proxy + url, 5000);
 }
 
-async function updateStatus(){
-  const motdEl = document.getElementById("motd");
-  const playersEl = document.getElementById("players");
-  const statusEl = document.getElementById("statusText");
-
-  const data = await getServerStatus();
-
-  // ❗ If fetch failed → DO NOT ERROR → use last good data
-  if(!data){
-    render(lastSuccess);
-    return;
-  }
-
-  // save good data
-  lastSuccess = data;
-
-  render(data);
-}
-
 function render(data){
   const motdEl = document.getElementById("motd");
   const playersEl = document.getElementById("players");
   const statusEl = document.getElementById("statusText");
 
-  const isOnline = data.online === true;
+  const hasPlayers = data.players && typeof data.players.online === "number";
+  const hasMotd = data.motd && (data.motd.html || data.motd.clean);
+
+  const isOnline = data.online === true || hasPlayers || hasMotd;
 
   if(isOnline){
     motdEl.innerHTML = extractMotd(data);
@@ -211,6 +199,23 @@ function render(data){
     playersEl.innerText = "";
     statusEl.innerHTML = '<span class="dot offline"></span>Offline';
   }
+}
+
+async function updateStatus(){
+  const data = await getServerStatus();
+
+  if(!data){
+    if(lastSuccess){
+      render(lastSuccess);
+    } else {
+      document.getElementById("statusText").innerHTML =
+        '<span class="dot offline"></span>Loading...';
+    }
+    return;
+  }
+
+  lastSuccess = data;
+  render(data);
 }
 
 updateStatus();
