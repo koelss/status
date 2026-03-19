@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Koels Status</title>
+  <style>
+    body {
+      margin:0;
+      font-family: Inter, system-ui, sans-serif;
+      background: linear-gradient(135deg,#0f172a,#1e293b,#334155,#0f172a);
+      background-size: 400% 400%;
+      animation: gradientBG 60s ease infinite;
+      color:white;
+    }
+    @keyframes gradientBG {
+      0% { background-position:0% 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0% 50%; }
+    }
+    .nav { padding:20px 40px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); font-size:18px; font-weight:600; }
+    .hero { text-align:center; padding:80px 20px 40px; }
+    .hero h2 { font-size:32px; margin-bottom:10px; }
+    .hero p { color:#cbd5e1; }
+    .card { margin:40px auto; width:450px; background: linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.5)); backdrop-filter: blur(25px); border-radius:20px; padding:30px; text-align:center; box-shadow:0 12px 50px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.08); transition: transform 0.3s ease; }
+    .card:hover { transform: translateY(-5px); }
+    .motd { color:#cbd5f5; margin-top:10px; }
+    .players { margin-top:10px; color:#94a3b8; }
+    .status { margin-top:12px; font-weight:600; font-size:18px; }
+    .online { color:#22c55e; }
+    .offline { color:#ef4444; }
+    .dot { height:10px; width:10px; border-radius:50%; display:inline-block; margin-right:6px; }
+    .dot.online { background:#22c55e; }
+    .dot.offline { background:#ef4444; }
+    .info { text-align:center; padding:60px 20px; color:#cbd5e1; }
+    .info-box { margin-top:20px; display:inline-block; background:rgba(30,41,59,0.5); padding:20px 30px; border-radius:12px; backdrop-filter:blur(12px); }
+    .contact { margin-top:15px; font-size:0.85rem; color:#94a3b8; text-align:center; }
+  </style>
+</head>
+<body>
+
+<div class="nav">koels.online</div>
+
+<div class="hero">
+  <h2>Welcome to koels.online status page</h2>
+  <p>Live server status and player information.</p>
+</div>
+
+<div class="card">
+  <h3>koels.online</h3>
+  <div id="motd" class="motd">Loading...</div>
+  <div id="players" class="players"></div>
+  <div id="status" class="status">Checking...</div>
+</div>
+
+<div class="info">
+  <h2>Server Info</h2>
+  <div class="info-box">
+    Join using: <strong>koels.online</strong><br><br>
+    Status from live APIs
+  </div>
+  <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+
+async function fetchJSON(url){
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Bad response");
+    return await res.json();
+  } catch { return null; }
+}
+
+async function getServerStatus(){
+  const mcsrvstatAPIs = [
+    "https://api.mcsrvstat.us/3/koels.online",
+    "https://api.mcsrvstat.us/2/koels.online",
+    "https://api.mcsrvstat.us/1/koels.online"
+  ];
+
+  let lastPingable = null, lastData = null;
+
+  for(const url of mcsrvstatAPIs){
+    const data = await fetchJSON(url);
+    if(!data) continue;
+    lastData = data;
+    if(data.online === true) return {data, source:url};
+    if(data.debug?.ping === true && !lastPingable) lastPingable = data;
+  }
+
+  if(lastPingable) return {data:lastPingable, source:"mcsrvstat.us"};
+
+  // fallback to mcstatus.io
+  try {
+    const corsProxy = "https://api.allorigins.win/raw?url=";
+    const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
+    const data = await fetchJSON(corsProxy + mcStatusURL);
+    if(data) return {data, source:"mcstatus.io"};
+  } catch {}
+
+  return {data:lastData, source:"last fallback"};
+}
+
+function extractMotd(data, source){
+  try{
+    if(data.motd){
+      if(Array.isArray(data.motd.clean)) return data.motd.clean.join("<br>");
+      if(Array.isArray(data.motd.raw)) return data.motd.raw.join("<br>");
+      if(typeof data.motd.html === "string") return data.motd.html;
+      if(typeof data.motd === "string") return data.motd;
+    }
+  } catch {}
+  return "No MOTD";
+}
+
+async function updateStatus(){
+  const motdEl = document.getElementById("motd");
+  const playersEl = document.getElementById("players");
+  const statusEl = document.getElementById("status");
+
+  try{
+    const {data, source} = await getServerStatus();
+    if(!data){
+      motdEl.innerText = "Error loading server";
+      playersEl.innerText = "";
+      statusEl.innerHTML = '<span class="dot offline"></span>Error';
+      return;
+    }
+
+    const isOnline = data.online===true || data.debug?.ping===true || data.online==="true";
+
+    if(isOnline){
+      motdEl.innerHTML = extractMotd(data, source);
+      const online = data.players?.online ?? 0;
+      const max = data.players?.max ?? 0;
+      playersEl.innerText = `${online} / ${max} players`;
+
+      const sourceName = source.includes("mcstatus.io") ? "mcstatus.io" : "mcsrvstat.us";
+      statusEl.innerHTML = `<span class="dot online"></span>Online (${sourceName})`;
+    } else {
+      motdEl.innerText = "Server is offline";
+      playersEl.innerText = "";
+      statusEl.innerHTML = '<span class="dot offline"></span>Offline';
+    }
+
+  } catch(err){
+    motdEl.innerText = "Error loading server";
+    playersEl.innerText = "";
+    statusEl.innerHTML = '<span class="dot offline"></span>Error';
+    console.error(err);
+  }
+}
+
+updateStatus();
+setInterval(updateStatus,15000);
+
+});
+</script>
+
+</body>
+</html>
