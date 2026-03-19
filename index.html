@@ -136,9 +136,7 @@
   <div class="info-box">
     Join using: <strong>koels.online</strong><br><br>
     Status from
-    <a href="https://mcsrvstat.us/" target="_blank">MCSrvStat.us</a>
-    and
-    <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
+    <a href="https://mcapi.us/" target="_blank">MCAPI</a>
   </div>
 </section>
 
@@ -150,16 +148,9 @@
 </div>
 
 <script>
-let lastSuccess = null;
-
-// fetch with timeout (prevents hanging)
-async function fetchWithTimeout(url, timeout = 5000){
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
+async function fetchStatus(){
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(id);
+    const res = await fetch("https://mcapi.us/server/status?ip=koels.online");
     if(!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -167,59 +158,34 @@ async function fetchWithTimeout(url, timeout = 5000){
   }
 }
 
-function extractMotd(data){
-  if(data?.motd?.html) return data.motd.html;
-  if(data?.motd?.clean) return data.motd.clean;
-  return "No MOTD";
-}
-
-async function getServerStatus(){
-  const proxy = "https://api.allorigins.win/raw?url=";
-  const url = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
-
-  return await fetchWithTimeout(proxy + url, 5000);
-}
-
 function render(data){
-  const motdEl = document.getElementById("motd");
-  const playersEl = document.getElementById("players");
-  const statusEl = document.getElementById("statusText");
-
-  const hasPlayers = data.players && typeof data.players.online === "number";
-  const hasMotd = data.motd && (data.motd.html || data.motd.clean);
-
-  const isOnline = data.online === true || hasPlayers || hasMotd;
-
-  if(isOnline){
-    motdEl.innerHTML = extractMotd(data);
-    playersEl.innerText = `${data.players?.online ?? 0} / ${data.players?.max ?? 0}`;
-    statusEl.innerHTML = '<span class="dot online"></span>Online';
-  } else {
-    motdEl.innerText = "Server is offline";
-    playersEl.innerText = "";
-    statusEl.innerHTML = '<span class="dot offline"></span>Offline';
-  }
-}
-
-async function updateStatus(){
-  const data = await getServerStatus();
+  const motd = document.getElementById("motd");
+  const players = document.getElementById("players");
+  const status = document.getElementById("statusText");
 
   if(!data){
-    if(lastSuccess){
-      render(lastSuccess);
-    } else {
-      document.getElementById("statusText").innerHTML =
-        '<span class="dot offline"></span>Loading...';
-    }
+    status.innerHTML = '<span class="dot offline"></span>Error';
     return;
   }
 
-  lastSuccess = data;
+  if(data.online){
+    motd.innerText = data.motd || "No MOTD";
+    players.innerText = `${data.players.now} / ${data.players.max}`;
+    status.innerHTML = '<span class="dot online"></span>Online';
+  } else {
+    motd.innerText = "Server is offline";
+    players.innerText = "";
+    status.innerHTML = '<span class="dot offline"></span>Offline';
+  }
+}
+
+async function update(){
+  const data = await fetchStatus();
   render(data);
 }
 
-updateStatus();
-setInterval(updateStatus, 15000);
+update();
+setInterval(update, 15000);
 </script>
 
 </body>
