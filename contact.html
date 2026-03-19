@@ -10,15 +10,14 @@
       background-size: 400% 400%;
       animation: gradientBG 60s ease infinite;
       color:white;
+      scroll-behavior: smooth;
     }
-
     @keyframes gradientBG {
       0% { background-position:0% 50%; }
       50% { background-position:100% 50%; }
       100% { background-position:0% 50%; }
     }
 
-    /* SAME NAVBAR */
     .nav {
       padding:20px 40px;
       background: rgba(0,0,0,0.4);
@@ -28,60 +27,35 @@
       font-weight:600;
       position: sticky;
       top:0;
+      z-index:100;
     }
-
-    .nav a {
-      color:white;
-      margin-left:20px;
-      text-decoration:none;
-    }
-
+    .nav a { color:white; margin-left:20px; text-decoration:none; }
     .nav a:hover { text-decoration:underline; }
-    .nav a:visited { color:white; }
+    .nav .site-name { color:#22c55e; }
 
-    section {
-      padding:80px 20px;
-      text-align:center;
-    }
+    section { padding:80px 20px; text-align:center; }
 
     .card {
       max-width:600px;
       margin:40px auto;
-      padding:30px;
-      background:rgba(30,41,59,0.5);
-      border-radius:20px;
+      background: linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.5));
       backdrop-filter: blur(25px);
-    }
-
-    /* FIXED FOOTER (matches other pages) */
-    .footer {
-      margin-top:20px;
-      font-size:0.85rem;
-      color:#94a3b8;
+      border-radius:20px;
+      padding:30px;
       text-align:center;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:6px;
+      box-shadow:0 12px 50px rgba(0,0,0,0.5);
+      border:1px solid rgba(255,255,255,0.08);
     }
 
-    .footer a {
-      color:#94a3b8;
-      text-decoration:none;
-    }
-
-    .footer a:hover { text-decoration:underline; }
-
-    .github-logo {
-      width:18px;
-      height:18px;
-    }
+    .footer { margin-top:15px; font-size:0.85rem; color:#94a3b8; text-align:center; }
+    a { color:#94a3b8; text-decoration:none; }
+    a:visited { color:#94a3b8; }
+    a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
-
 <div class="nav">
-  koels.site
+  <span class="site-name">koels.site</span>
   <a href="index.html">Status</a>
   <a href="about.html">About Me</a>
   <a href="contact.html">Contact</a>
@@ -91,6 +65,9 @@
   <h2>Contact Me</h2>
   <div class="card">
     <p>
+      You can reach me through the following:
+    </p>
+    <p>
       Discord: <strong>@koels</strong><br>
       Email: <strong>kyle@koels.site</strong>
     </p>
@@ -99,10 +76,8 @@
 
 <div class="footer">
   <a href="https://github.com/" target="_blank">
-    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo">
-    Hosted on GitHub
+    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="20" height="20" style="vertical-align:middle; margin-right:5px;"> Hosted on GitHub
   </a>
 </div>
-
 </body>
 </html>
