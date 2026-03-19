@@ -77,12 +77,13 @@
     <h3>koels.online</h3>
     <div id="motd" class="motd">Loading...</div>
     <div id="players" class="players"></div>
+    <div id="version" class="players"></div>
     <div id="statusText" class="status">Checking...</div>
   </div>
 
   <div class="info-box">
     Join using: <strong>koels.online</strong><br><br>
-    Status from live APIs
+    Status from <a href="https://mcstatus.io/" target="_blank" style="color:#94a3b8;">MCStatus</a>
   </div>
   <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
 </section>
@@ -92,33 +93,17 @@
 </div>
 
 <script>
+const proxy = "https://api.allorigins.win/raw?url=";
+const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
+
 async function fetchJSON(url){
-  try { const res = await fetch(url); if(!res.ok) throw new Error("Bad response"); return await res.json(); } catch { return null; }
-}
-
-async function getServerStatus(){
-  const mcsrvstatAPIs = [
-    "https://api.mcsrvstat.us/3/koels.online",
-    "https://api.mcsrvstat.us/2/koels.online",
-    "https://api.mcsrvstat.us/1/koels.online"
-  ];
-  let lastPingable = null, lastData = null;
-  for(const url of mcsrvstatAPIs){
-    const data = await fetchJSON(url);
-    if(!data) continue;
-    lastData = data;
-    if(data.online===true) return {data, source:url};
-    if(data.debug?.ping===true && !lastPingable) lastPingable = data;
-  }
-
   try {
-    const corsProxy = "https://api.allorigins.win/raw?url=";
-    const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
-    const data = await fetchJSON(corsProxy + mcStatusURL);
-    if(data) return {data, source:"mcstatus.io"};
-  } catch {}
-
-  return {data:lastData, source:"last fallback"};
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Bad response");
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 function extractMotd(data){
@@ -136,37 +121,33 @@ function extractMotd(data){
 async function updateStatus(){
   const motdEl = document.getElementById("motd");
   const playersEl = document.getElementById("players");
+  const versionEl = document.getElementById("version");
   const statusEl = document.getElementById("statusText");
 
-  try{
-    const {data, source} = await getServerStatus();
-    if(!data){
-      motdEl.innerText = "Error loading server";
-      playersEl.innerText = "";
-      statusEl.innerHTML = '<span class="dot offline"></span>Error';
-      return;
-    }
+  const data = await fetchJSON(proxy + mcStatusURL);
 
-    const isOnline = data.online===true || data.debug?.ping===true || data.online==="true";
-
-    if(isOnline){
-      motdEl.innerHTML = extractMotd(data);
-      const online = data.players?.online ?? 0;
-      const max = data.players?.max ?? 0;
-      playersEl.innerText = `${online} / ${max} players`;
-
-      const sourceName = source.includes("mcstatus.io") ? "mcstatus.io" : "mcsrvstat.us";
-      statusEl.innerHTML = `<span class="dot online"></span>Online (${sourceName})`;
-    } else {
-      motdEl.innerText = "Server is offline";
-      playersEl.innerText = "";
-      statusEl.innerHTML = '<span class="dot offline"></span>Offline';
-    }
-  } catch(err){
+  if(!data){
     motdEl.innerText = "Error loading server";
     playersEl.innerText = "";
+    versionEl.innerText = "";
     statusEl.innerHTML = '<span class="dot offline"></span>Error';
-    console.error(err);
+    return;
+  }
+
+  const isOnline = data.online===true || data.online==="true";
+
+  if(isOnline){
+    motdEl.innerHTML = extractMotd(data);
+    const online = data.players?.online ?? 0;
+    const max = data.players?.max ?? 0;
+    playersEl.innerText = `${online} / ${max} players`;
+    versionEl.innerHTML = data.version?.name_html || data.version?.name_clean || "";
+    statusEl.innerHTML = '<span class="dot online"></span>Online';
+  } else {
+    motdEl.innerText = "Server is offline";
+    playersEl.innerText = "";
+    versionEl.innerHTML = "";
+    statusEl.innerHTML = '<span class="dot offline"></span>Offline';
   }
 }
 
