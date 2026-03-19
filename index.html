@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Koels Status</title>
+  <title>Koels - Server Status</title>
   <style>
     body {
       margin:0;
@@ -37,6 +37,7 @@
 
     .nav a:hover { text-decoration:underline; }
     .nav a:visited { color:white; }
+    .nav .site-name { color:#22c55e; font-weight:700; }
 
     section {
       padding:80px 20px;
@@ -73,22 +74,6 @@
       margin-top:12px;
       color:#94a3b8;
       font-size:14px;
-    }
-
-    .progress-bar {
-      width:100%;
-      height:6px;
-      background: rgba(255,255,255,0.1);
-      border-radius:10px;
-      overflow:hidden;
-      margin-top:8px;
-    }
-
-    .progress-fill {
-      height:100%;
-      background: linear-gradient(90deg,#22c55e,#4ade80);
-      width:0%;
-      transition: width 1s linear;
     }
 
     .info-box {
@@ -139,7 +124,7 @@
 <body>
 
 <div class="nav">
-  koels.site
+  <span class="site-name">koels.site</span>
   <a href="index.html">Status</a>
   <a href="about.html">About Me</a>
   <a href="contact.html">Contact</a>
@@ -155,9 +140,6 @@
     <div id="statusText" class="status">Checking...</div>
 
     <div class="timer-text" id="timerText"></div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
   </div>
 
   <div class="info-box">
@@ -219,16 +201,13 @@ async function update(){
   render(data);
 }
 
-// synced timer (FIXED)
+// synced timer (no progress bar)
 function updateTimer(){
   const now = Math.floor(Date.now() / 1000);
-
   const currentCycle = Math.floor(now / REFRESH_INTERVAL);
   const remaining = REFRESH_INTERVAL - (now % REFRESH_INTERVAL);
-  const progress = ((REFRESH_INTERVAL - remaining) / REFRESH_INTERVAL) * 100;
 
   document.getElementById("timerText").innerText = `Refreshing in ${remaining}s`;
-  document.getElementById("progressFill").style.width = progress + "%";
 
   if(currentCycle !== lastCycle){
     lastCycle = currentCycle;
