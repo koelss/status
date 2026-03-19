@@ -19,6 +19,7 @@
       100% { background-position:0% 50%; }
     }
 
+    /* NAV */
     .nav {
       padding:20px 40px;
       background: rgba(0,0,0,0.4);
@@ -33,7 +34,7 @@
     .nav a { color:white; margin-left:20px; text-decoration:none; }
     .nav a:hover { text-decoration:underline; }
 
-    section { text-align:center; padding:80px 20px 40px; }
+    section { padding:80px 20px; text-align:center; }
 
     .card {
       margin:40px auto;
@@ -56,24 +57,10 @@
     .dot.online { background:#22c55e; }
     .dot.offline { background:#ef4444; }
 
-    .info-box {
-      margin-top:20px;
-      display:inline-block;
-      background: rgba(30,41,59,0.5);
-      padding:20px 30px;
-      border-radius:12px;
-      backdrop-filter:blur(12px);
-    }
+    .info-box { margin-top:20px; display:inline-block; background:rgba(30,41,59,0.5); padding:20px 30px; border-radius:12px; backdrop-filter:blur(12px); }
 
-    .contact {
+    .contact, .footer {
       margin-top:15px;
-      font-size:0.85rem;
-      color:#94a3b8;
-      text-align:center;
-    }
-
-    .footer {
-      margin-top:20px;
       font-size:0.85rem;
       color:#94a3b8;
       text-align:center;
@@ -97,108 +84,132 @@
   </style>
 </head>
 <body>
-  <div class="nav">
-    koels.site
-    <a href="#status">Status</a>
-    <a href="about.html">About Me</a>
+<div class="nav">
+  koels.site
+  <a href="#status">Status</a>
+  <a href="about.html">About Me</a>
+</div>
+
+<section id="status">
+  <h2>Welcome to my Server status page!</h2>
+  <p>Live server status and player information.</p>
+
+  <div class="card">
+    <h3>koels.online</h3>
+    <div id="motd" class="motd">Loading...</div>
+    <div id="players" class="players"></div>
+    <div id="statusText" class="status">Checking...</div>
   </div>
 
-  <section id="status">
-    <h2>Welcome to my Server status page!</h2>
-    <p>Live server status and player information.</p>
-
-    <div class="card">
-      <h3>koels.online</h3>
-      <div id="motd" class="motd">Loading...</div>
-      <div id="players" class="players"></div>
-      <div id="statusText" class="status">Checking...</div>
-    </div>
-
-    <div class="info-box">
-      Join using: <strong>koels.online</strong><br><br>
-      Status from <a href="https://mcsrvstat.us/" target="_blank">MCsrvStat.us</a> and <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
-    </div>
-
-    <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
-  </section>
-
-  <div class="footer">
-    <a href="https://github.com/" target="_blank">
-      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" class="github-logo">
-      Hosted on GitHub
-    </a>
+  <div class="info-box">
+    Join using: <strong>koels.online</strong><br><br>
+    Status from <a href="https://mcsrvstat.us/" target="_blank">MCSrvStat.us</a> and <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
   </div>
+  <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
+</section>
 
-  <script>
-    async function fetchJSON(url){
-      try {
-        const res = await fetch(url);
-        if(!res.ok) throw new Error("Bad response");
-        return await res.json();
-      } catch {
-        return null;
-      }
+<div class="footer">
+  <a href="https://github.com/" target="_blank">
+    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" class="github-logo">
+    Hosted on GitHub
+  </a>
+</div>
+
+<script>
+let lastSuccess = null;
+
+// simple fetch wrapper
+async function fetchJSON(url){
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Bad response");
+    return await res.json();
+  } catch { return null; }
+}
+
+// extract motd for mcstatus.io or mcsrvstat.us
+function extractMotd(data){
+  try{
+    if(data.motd){
+      if(Array.isArray(data.motd.clean)) return data.motd.clean.join("<br>");
+      if(Array.isArray(data.motd.raw)) return data.motd.raw.join("<br>");
+      if(typeof data.motd.html==="string") return data.motd.html;
+      if(typeof data.motd==="string") return data.motd;
     }
+  } catch{}
+  return "No MOTD";
+}
 
-    async function getServerStatus(){
-      try {
-        const corsProxy = "https://api.allorigins.win/raw?url=";
-        const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
-        const data = await fetchJSON(corsProxy + mcStatusURL);
-        if(data) return data;
-      } catch {}
-      return null;
-    }
+async function getServerStatus(){
+  // mcstatus.io via allorigins
+  const corsProxy = "https://api.allorigins.win/raw?url=";
+  const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
+  const mcStatusData = await fetchJSON(corsProxy + mcStatusURL);
+  if(mcStatusData && (mcStatusData.online === true || mcStatusData.players?.online >= 0)) return mcStatusData;
 
-    function extractMotd(data){
-      try{
-        if(data.motd){
-          if(Array.isArray(data.motd.clean)) return data.motd.clean.join("<br>");
-          if(Array.isArray(data.motd.raw)) return data.motd.raw.join("<br>");
-          if(typeof data.motd.html==="string") return data.motd.html;
-          if(typeof data.motd==="string") return data.motd;
-        }
-      } catch{}
-      return "No MOTD";
-    }
+  // fallback mcsrvstat.us
+  const mcsrvUrls = [
+    "https://api.mcsrvstat.us/3/koels.online",
+    "https://api.mcsrvstat.us/2/koels.online",
+    "https://api.mcsrvstat.us/1/koels.online"
+  ];
+  for(const url of mcsrvUrls){
+    const data = await fetchJSON(url);
+    if(data && (data.online === true || data.debug?.ping===true)) return data;
+  }
 
-    async function updateStatus(){
-      const motdEl = document.getElementById("motd");
-      const playersEl = document.getElementById("players");
-      const statusEl = document.getElementById("statusText");
+  return null;
+}
 
-      try{
-        const data = await getServerStatus();
-        if(!data){
-          motdEl.innerText = "Error loading server";
-          playersEl.innerText = "";
-          statusEl.innerHTML = '<span class="dot offline"></span>Error';
-          return;
-        }
+async function updateStatus(){
+  const motdEl = document.getElementById("motd");
+  const playersEl = document.getElementById("players");
+  const statusEl = document.getElementById("statusText");
 
-        const isOnline = data.online===true || data.debug?.ping===true || data.online==="true";
+  try{
+    const data = await getServerStatus();
 
-        if(isOnline){
-          motdEl.innerHTML = extractMotd(data);
-          const online = data.players?.online ?? 0;
-          const max = data.players?.max ?? 0;
-          playersEl.innerText = `${online} / ${max} players`;
-          statusEl.innerHTML = `<span class="dot online"></span>Online`;
-        } else {
-          motdEl.innerText = "Server is offline";
-          playersEl.innerText = "";
-          statusEl.innerHTML = '<span class="dot offline"></span>Offline';
-        }
-      } catch(err){
+    if(!data){
+      if(lastSuccess){
+        motdEl.innerHTML = extractMotd(lastSuccess);
+        const online = lastSuccess.players?.online ?? 0;
+        const max = lastSuccess.players?.max ?? 0;
+        playersEl.innerText = `${online} / ${max} players`;
+        statusEl.innerHTML = `<span class="dot online"></span>Online`;
+      } else {
         motdEl.innerText = "Error loading server";
         playersEl.innerText = "";
         statusEl.innerHTML = '<span class="dot offline"></span>Error';
-        console.error(err);
       }
+      return;
     }
 
-    updateStatus();
-    setInterval(updateStatus,15000);
-  </script>
+    lastSuccess = data;
+
+    const isOnline = data.online===true || data.debug?.ping===true || data.online==="true";
+
+    if(isOnline){
+      motdEl.innerHTML = extractMotd(data);
+      const online = data.players?.online ?? 0;
+      const max = data.players?.max ?? 0;
+      playersEl.innerText = `${online} / ${max} players`;
+      statusEl.innerHTML = `<span class="dot online"></span>Online`;
+    } else {
+      motdEl.innerText = "Server is offline";
+      playersEl.innerText = "";
+      statusEl.innerHTML = '<span class="dot offline"></span>Offline';
+    }
+
+  } catch(err){
+    motdEl.innerText = "Error loading server";
+    playersEl.innerText = "";
+    statusEl.innerHTML = '<span class="dot offline"></span>Error';
+    console.error(err);
+  }
+}
+
+updateStatus();
+setInterval(updateStatus,15000);
+</script>
 </body>
 </html>
