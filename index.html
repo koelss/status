@@ -59,6 +59,17 @@
     .dot.offline { background:#ef4444; }
 
     .info-box { margin-top:20px; display:inline-block; background:rgba(30,41,59,0.5); padding:20px 30px; border-radius:12px; backdrop-filter:blur(12px); }
+    .status-link {
+      color:#94a3b8;
+      text-decoration:none;
+    }
+    .status-link:visited {
+      color:#94a3b8;
+    }
+    .status-link:hover {
+      text-decoration:underline;
+    }
+
     .contact { margin-top:15px; font-size:0.85rem; color:#94a3b8; text-align:center; }
     .footer { margin-top:25px; font-size:0.85rem; color:#94a3b8; text-align:center; }
   </style>
@@ -83,20 +94,25 @@
 
   <div class="info-box">
     Join using: <strong>koels.online</strong><br><br>
-    Status from 
-    <a href="https://mcsrvstat.us/" target="_blank">mcsrvstat.us</a> &amp; 
-    <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
+    Status from
+    <a href="https://mcsrvstat.us/" target="_blank" class="status-link">mcsrvstat.us</a> &amp;
+    <a href="https://mcstatus.io/" target="_blank" class="status-link">MCStatus</a>
   </div>
   <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
 </section>
 
 <div class="footer">
-  Hosted on <a href="https://github.com/" target="_blank" style="color:#94a3b8;">GitHub</a>
+  <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" style="height:16px; vertical-align:middle; margin-right:6px;">
+  Hosted on <a href="https://github.com/" target="_blank" style="color:#94a3b8; text-decoration:none;">GitHub</a>
 </div>
 
 <script>
 async function fetchJSON(url){
-  try { const res = await fetch(url); if(!res.ok) throw new Error("Bad response"); return await res.json(); } catch { return null; }
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Bad response");
+    return await res.json();
+  } catch { return null; }
 }
 
 async function getServerStatus(){
