@@ -12,6 +12,7 @@
       color:white;
       scroll-behavior: smooth;
     }
+
     @keyframes gradientBG {
       0% { background-position:0% 50%; }
       50% { background-position:100% 50%; }
@@ -29,21 +30,10 @@
       top:0;
       z-index:100;
     }
-    .nav a { color:#94a3b8; margin-left:20px; text-decoration:none; }
+    .nav a { color:white; margin-left:20px; text-decoration:none; }
     .nav a:hover { text-decoration:underline; }
 
-    section {
-      text-align:center;
-      padding:80px 20px 40px;
-    }
-
-    .hero h2 {
-      font-size:32px;
-      margin-bottom:10px;
-    }
-    .hero p {
-      color:#94a3b8;
-    }
+    section { text-align:center; padding:80px 20px 40px; }
 
     .card {
       margin:40px auto;
@@ -66,125 +56,149 @@
     .dot.online { background:#22c55e; }
     .dot.offline { background:#ef4444; }
 
-    .info-box { 
-      margin-top:20px; 
-      display:inline-block; 
-      background:rgba(30,41,59,0.5); 
-      padding:20px 30px; 
-      border-radius:12px; 
-      backdrop-filter:blur(12px); 
-      color:#94a3b8;
+    .info-box {
+      margin-top:20px;
+      display:inline-block;
+      background: rgba(30,41,59,0.5);
+      padding:20px 30px;
+      border-radius:12px;
+      backdrop-filter:blur(12px);
     }
-    .info-box a { color:#94a3b8; text-decoration:none; }
-    .info-box a:hover { text-decoration:underline; }
 
-    .contact, .footer { 
-      margin-top:15px; 
-      font-size:0.85rem; 
-      color:#94a3b8; 
-      text-align:center; 
+    .contact {
+      margin-top:15px;
+      font-size:0.85rem;
+      color:#94a3b8;
+      text-align:center;
     }
-    .footer a { 
-      color:#94a3b8; 
-      text-decoration:none; 
-      display:inline-flex; 
-      align-items:center; 
-      gap:6px; 
-      justify-content:center; 
+
+    .footer {
+      margin-top:20px;
+      font-size:0.85rem;
+      color:#94a3b8;
+      text-align:center;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+    }
+
+    .footer a {
+      color:#94a3b8;
+      text-decoration:none;
+    }
+    .footer a:hover { text-decoration:underline; }
+
+    .github-logo {
+      width:18px;
+      height:18px;
+      vertical-align:middle;
     }
   </style>
 </head>
 <body>
+  <div class="nav">
+    koels.site
+    <a href="#status">Status</a>
+    <a href="about.html">About Me</a>
+  </div>
 
-<div class="nav">
-  koels.site
-  <a href="#status">Status</a>
-  <a href="about.html">About Me</a>
-</div>
-
-<section id="status">
-  <div class="hero">
-    <h2>Welcome to koels.online status page</h2>
+  <section id="status">
+    <h2>Welcome to my Server status page!</h2>
     <p>Live server status and player information.</p>
+
+    <div class="card">
+      <h3>koels.online</h3>
+      <div id="motd" class="motd">Loading...</div>
+      <div id="players" class="players"></div>
+      <div id="statusText" class="status">Checking...</div>
+    </div>
+
+    <div class="info-box">
+      Join using: <strong>koels.online</strong><br><br>
+      Status from <a href="https://mcsrvstat.us/" target="_blank">MCsrvStat.us</a> and <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
+    </div>
+
+    <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
+  </section>
+
+  <div class="footer">
+    <a href="https://github.com/" target="_blank">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" class="github-logo">
+      Hosted on GitHub
+    </a>
   </div>
 
-  <div class="card">
-    <h3>koels.online</h3>
-    <div id="motd" class="motd">Loading...</div>
-    <div id="players" class="players"></div>
-    <div id="statusText" class="status">Checking...</div>
-  </div>
-
-  <div class="info-box">
-    Join using: <strong>koels.online</strong><br><br>
-    Status from <a href="https://mcsrvstat.us/" target="_blank">MCSrvStat.us</a> and <a href="https://mcstatus.io/" target="_blank">MCStatus</a>
-  </div>
-
-  <div class="contact">Contact for inquiries: <strong>@koels on Discord</strong></div>
-</section>
-
-<div class="footer">
-  <a href="https://github.com/" target="_blank">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="#94a3b8" viewBox="0 0 16 16" width="16" height="16">
-      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82a7.7 7.7 0 012 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.001 8.001 0 0016 8c0-4.42-3.58-8-8-8z"/>
-    </svg>
-    Hosted on GitHub
-  </a>
-</div>
-
-<script>
-async function fetchJSON(url){
-  try { 
-    const res = await fetch(url); 
-    if(!res.ok) throw new Error("Bad response"); 
-    return await res.json(); 
-  } catch { 
-    return null; 
-  }
-}
-
-async function updateStatus(){
-  const motdEl = document.getElementById("motd");
-  const playersEl = document.getElementById("players");
-  const statusEl = document.getElementById("statusText");
-
-  try{
-    const corsProxy = "https://api.allorigins.win/raw?url=";
-    const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
-    const data = await fetchJSON(corsProxy + mcStatusURL);
-
-    if(!data){
-      motdEl.innerText = "Error loading server";
-      playersEl.innerText = "";
-      statusEl.innerHTML = '<span class="dot offline"></span>Error';
-      return;
+  <script>
+    async function fetchJSON(url){
+      try {
+        const res = await fetch(url);
+        if(!res.ok) throw new Error("Bad response");
+        return await res.json();
+      } catch {
+        return null;
+      }
     }
 
-    const isOnline = data.online===true;
-    if(isOnline){
-      const motd = data.motd?.html || data.motd?.clean?.join("<br>") || data.motd?.raw?.join("<br>") || "No MOTD";
-      motdEl.innerHTML = motd;
-
-      const online = data.players?.online ?? 0;
-      const max = data.players?.max ?? 0;
-      playersEl.innerText = `${online} / ${max} players`;
-
-      statusEl.innerHTML = '<span class="dot online"></span>Online';
-    } else {
-      motdEl.innerText = "Server is offline";
-      playersEl.innerText = "";
-      statusEl.innerHTML = '<span class="dot offline"></span>Offline';
+    async function getServerStatus(){
+      try {
+        const corsProxy = "https://api.allorigins.win/raw?url=";
+        const mcStatusURL = encodeURIComponent("https://api.mcstatus.io/v2/status/java/koels.online");
+        const data = await fetchJSON(corsProxy + mcStatusURL);
+        if(data) return data;
+      } catch {}
+      return null;
     }
-  } catch(err){
-    motdEl.innerText = "Error loading server";
-    playersEl.innerText = "";
-    statusEl.innerHTML = '<span class="dot offline"></span>Error';
-    console.error(err);
-  }
-}
 
-updateStatus();
-setInterval(updateStatus,15000);
-</script>
+    function extractMotd(data){
+      try{
+        if(data.motd){
+          if(Array.isArray(data.motd.clean)) return data.motd.clean.join("<br>");
+          if(Array.isArray(data.motd.raw)) return data.motd.raw.join("<br>");
+          if(typeof data.motd.html==="string") return data.motd.html;
+          if(typeof data.motd==="string") return data.motd;
+        }
+      } catch{}
+      return "No MOTD";
+    }
+
+    async function updateStatus(){
+      const motdEl = document.getElementById("motd");
+      const playersEl = document.getElementById("players");
+      const statusEl = document.getElementById("statusText");
+
+      try{
+        const data = await getServerStatus();
+        if(!data){
+          motdEl.innerText = "Error loading server";
+          playersEl.innerText = "";
+          statusEl.innerHTML = '<span class="dot offline"></span>Error';
+          return;
+        }
+
+        const isOnline = data.online===true || data.debug?.ping===true || data.online==="true";
+
+        if(isOnline){
+          motdEl.innerHTML = extractMotd(data);
+          const online = data.players?.online ?? 0;
+          const max = data.players?.max ?? 0;
+          playersEl.innerText = `${online} / ${max} players`;
+          statusEl.innerHTML = `<span class="dot online"></span>Online`;
+        } else {
+          motdEl.innerText = "Server is offline";
+          playersEl.innerText = "";
+          statusEl.innerHTML = '<span class="dot offline"></span>Offline';
+        }
+      } catch(err){
+        motdEl.innerText = "Error loading server";
+        playersEl.innerText = "";
+        statusEl.innerHTML = '<span class="dot offline"></span>Error';
+        console.error(err);
+      }
+    }
+
+    updateStatus();
+    setInterval(updateStatus,15000);
+  </script>
 </body>
 </html>
