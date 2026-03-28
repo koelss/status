@@ -434,10 +434,7 @@ footer {
 <!-- HEADER -->
 <header>
   <div class="logo"><div class="logo-pulse"></div>Koels.site</div>
-  <nav class="nav">
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-  </nav>
+
   <div class="pill" id="headerPill">
     <div class="pi"></div>
     <span id="pillText">Checking</span>
@@ -543,7 +540,7 @@ footer {
     </div>
     <div class="crow">
       <span class="c-type">Email</span>
-      <span class="c-val">kyle@koels.site</span>
+      <span class="c-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="791200151c3912161c150a570a100d1c">[email&#160;protected]</a></span>
       <span class="c-arr">↗</span>
     </div>
   </div>
@@ -559,7 +556,7 @@ footer {
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* Curtain */
 window.addEventListener('load',()=>setTimeout(()=>document.getElementById('curtain').classList.add('gone'),650))
 
@@ -597,12 +594,18 @@ async function update(){
   pill.className='pill online';pt.textContent='Online'
   chips.innerHTML=''
   if(d.players.sample&&d.players.sample.length>0){
-    d.players.sample.forEach((p,i)=>{const el=document.createElement('div');el.className='chip';el.textContent=p.name;el.style.animationDelay=(i*.05)+'s';chips.appendChild(el)})
+    d.players.sample.forEach((pl,i)=>{
+      const el=document.createElement('span');
+      el.className='chip';
+      el.textContent=pl.name;
+      chips.appendChild(el);
+    })
   } else {
-    chips.innerHTML=''
+    chips.innerHTML='<span class="chip-empty">No players listed</span>'
   }
 }
-update();setInterval(update,180000)
+update();
+setInterval(update, 180000);
 </script>
 </body>
 </html>
