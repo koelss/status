@@ -481,9 +481,7 @@ footer {
           <span>MC Version</span>
           <span style="font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">1.21.11</span>
         </div>
-        <div class="chips" id="chipList">
-          
-        </div>
+
       </div>
       <div class="card-foot">
         <span class="cf-l">koels.site</span>
@@ -580,29 +578,16 @@ async function update(){
   const big=document.getElementById('statusBig')
   const nEl=document.getElementById('nowPlayers'),mEl=document.getElementById('maxPlayers')
   const fill=document.getElementById('capFill'),pct=document.getElementById('capPct')
-  const chips=document.getElementById('chipList')
   const pill=document.getElementById('headerPill'),pt=document.getElementById('pillText')
   if(!d||!d.online){
     big.textContent='Offline';big.className='status-big offline'
     nEl.textContent='0';mEl.textContent='0';fill.style.width='0%';pct.textContent='0%'
-    chips.innerHTML='<span class="chip-empty">Server is offline</span>'
     pill.className='pill offline';pt.textContent='Offline';return
   }
   const now=d.players.now,max=d.players.max,p=max>0?Math.round(now/max*100):0
   big.textContent='Online';big.className='status-big online'
   nEl.textContent=now;mEl.textContent=max;fill.style.width=p+'%';pct.textContent=p+'%'
   pill.className='pill online';pt.textContent='Online'
-  chips.innerHTML=''
-  if(d.players.sample&&d.players.sample.length>0){
-    d.players.sample.forEach((pl,i)=>{
-      const el=document.createElement('span');
-      el.className='chip';
-      el.textContent=pl.name;
-      chips.appendChild(el);
-    })
-  } else {
-    chips.innerHTML='<span class="chip-empty">No players listed</span>'
-  }
 }
 update();
 setInterval(update, 180000);
